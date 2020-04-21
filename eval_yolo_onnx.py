@@ -2,22 +2,6 @@
 # @Time    : 2020/4/16 15:28
 # @Author  : zhaogang
 
-# -*- coding: utf-8 -*-
-# @Time    : 2020/4/15 14:55
-# @Author  : zhaogang
-
-# -*- coding: utf-8 -*-
-# @Time    : 2020/3/26 17:20
-# @Author  : zhaogang
-
-# -*- coding: utf-8 -*-
-# @Time    : 2020/3/2 16:14
-# @Author  : zhaogang
-
-# -*- coding: utf-8 -*-
-# @Time    : 2020/2/20 16:49
-# @Author  : zhaogang
-
 import os
 os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 import tensorflow as tf
