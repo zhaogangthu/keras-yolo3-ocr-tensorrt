@@ -14,8 +14,8 @@ import matplotlib.pyplot as plt
 from math import *
 
 from yolo3.yolo_test import YoloPredict
-import ctpn.utils as utils
-from ctpn.text_proposal_connector_oriented import TextProposalConnectorOriented
+#import ctpn.utils as utils
+#from ctpn.text_proposal_connector_oriented import TextProposalConnectorOriented
 from densent_ocr.densenet_ocr_predict import DenseNetOcrPredict
 #from pytesseract import image_to_string
 import json
