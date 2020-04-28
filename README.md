@@ -8,6 +8,12 @@ OCR：
 
 densenet
 
+weights:
+
+链接：https://pan.baidu.com/s/1NEk9A8gWsRMXeE9lKu8Sdg 
+提取码：wvx7 
+
+
 reference：
 
 https://github.com/chineseocr/chineseocr.git
