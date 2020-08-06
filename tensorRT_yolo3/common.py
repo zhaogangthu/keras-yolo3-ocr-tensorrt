@@ -150,12 +150,40 @@ class HostDeviceMem(object):
         return self.__str__()
 
 # Allocates all buffers required for an engine, i.e. host/device inputs/outputs.
+def allocate_buffers2(engine,h_,w_):
+    inputs = []
+    outputs = []
+    bindings = []
+    stream = cuda.Stream()
+    tmp=[1,32,16,8]
+    for count,binding in enumerate(engine):
+        size = trt.volume(engine.get_binding_shape(binding)) * engine.max_batch_size*(int)(h_/tmp[count])*(int)(w_/tmp[count])
+        #size = trt.volume(engine.get_binding_shape(binding)) * engine.max_batch_size
+        dtype = trt.nptype(engine.get_binding_dtype(binding))
+        # Allocate host and device buffers
+        host_mem = cuda.pagelocked_empty(size, dtype)
+        device_mem = cuda.mem_alloc(host_mem.nbytes)
+        # Append the device buffer to device bindings.
+        bindings.append(int(device_mem))
+        # Append to the appropriate list.
+        if engine.binding_is_input(binding):
+            inputs.append(HostDeviceMem(host_mem, device_mem))
+        else:
+            outputs.append(HostDeviceMem(host_mem, device_mem))
+
+        print('size:',size)
+        print('input:',inputs)
+        print('output:',outputs)
+        print('------------------')
+    return inputs, outputs, bindings, stream
+
 def allocate_buffers(engine):
     inputs = []
     outputs = []
     bindings = []
     stream = cuda.Stream()
-    for binding in engine:
+
+    for count,binding in enumerate(engine):
         size = trt.volume(engine.get_binding_shape(binding)) * engine.max_batch_size
         dtype = trt.nptype(engine.get_binding_dtype(binding))
         # Allocate host and device buffers
@@ -188,6 +216,21 @@ def do_inference(context, bindings, inputs, outputs, stream, batch_size=1):
 # inputs and outputs are expected to be lists of HostDeviceMem objects.
 def do_inference_v2(context, bindings, inputs, outputs, stream):
     # Transfer input data to the GPU.
+    [cuda.memcpy_htod_async(inp.device, inp.host, stream) for inp in inputs]
+    # Run inference.
+    context.execute_async_v2(bindings=bindings, stream_handle=stream.handle)
+    # Transfer predictions back from the GPU.
+    [cuda.memcpy_dtoh_async(out.host, out.device, stream) for out in outputs]
+    # Synchronize the stream
+    stream.synchronize()
+    # Return only the host outputs.
+    return [out.host for out in outputs]
+
+def do_inference_v3(context, bindings, inputs, outputs, stream,h_,w_):
+    # Transfer input data to the GPU.
+
+    context.set_binding_shape(0, (1, 3, h_, w_))
+
     [cuda.memcpy_htod_async(inp.device, inp.host, stream) for inp in inputs]
     # Run inference.
     context.execute_async_v2(bindings=bindings, stream_handle=stream.handle)
