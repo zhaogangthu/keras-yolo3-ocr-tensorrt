@@ -241,7 +241,7 @@ class YoloPredict(object):
     def init_tensorrt_engine(self):
         self.TRT_LOGGER = trt.Logger(trt.Logger.WARNING)
         self.engine = self.get_engine("tensorRT_yolo3/model/weights-densent-05-loss_344.7720_.h5_none.onnx",
-                                 "tensorRT_yolo3/model/engine_dynamic_fp16.onnx")
+                                 "tensorRT_yolo3/model/engine_dynamic_fp16_2.onnx")
         #self.inputs, self.outputs, self.bindings, self.stream = common.allocate_buffers(engine)
         self.inputs, self.outputs, self.bindings, self.stream = common.allocate_buffers2(self.engine, 2080, 2080)
         #self.inputs, self.outputs, self.bindings, self.stream=None,None,None,None
@@ -256,10 +256,11 @@ class YoloPredict(object):
                     common.EXPLICIT_BATCH) as network, \
                     trt.OnnxParser(network, self.TRT_LOGGER) as parser,\
                     builder.create_builder_config() as config:
-                #builder.max_workspace_size = 1 << 34  # 256MiB
                 builder.max_batch_size = 1
                 # Parse model file
                 builder.fp16_mode = True
+                builder.strict_type_constraints = True
+
                 config.set_flag(trt.BuilderFlag.FP16)
                 config.max_workspace_size=common.GiB(8)
                 if not os.path.exists(onnx_file_path):
@@ -414,7 +415,7 @@ class YoloPredict(object):
         print('w,h:',w,h)
         print('w_,h_:',w_,h_)
         #self.inputs, self.outputs, self.bindings, self.stream = common.allocate_buffers2(self.engine,h_,w_)
-        image=image.astype('float16')
+        #image=image.astype('float16')
         self.inputs[0].host = image
         trt_outputs = common.do_inference_v3(self.context,
                                              bindings=self.bindings,

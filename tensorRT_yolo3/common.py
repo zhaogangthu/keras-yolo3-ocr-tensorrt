@@ -156,10 +156,14 @@ def allocate_buffers2(engine,h_,w_):
     bindings = []
     stream = cuda.Stream()
     tmp=[1,32,16,8]
+    print('engine.get_binding_format_desc',engine.get_binding_format_desc(0))
     for count,binding in enumerate(engine):
+        print('binding:',binding)
         size = trt.volume(engine.get_binding_shape(binding)) * engine.max_batch_size*(int)(h_/tmp[count])*(int)(w_/tmp[count])
         #size = trt.volume(engine.get_binding_shape(binding)) * engine.max_batch_size
         dtype = trt.nptype(engine.get_binding_dtype(binding))
+        #dtype=np.float16
+        print('dtype:',dtype)
         # Allocate host and device buffers
         host_mem = cuda.pagelocked_empty(size, dtype)
         device_mem = cuda.mem_alloc(host_mem.nbytes)
