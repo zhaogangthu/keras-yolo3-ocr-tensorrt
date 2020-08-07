@@ -28,8 +28,6 @@ from tensorflow.keras import backend as K
 from tensorflow.python.platform import gfile
 K.set_learning_phase(0)
 
-
-
 def load_pb(pb_file_path):
     sess = tf.Session()
     with gfile.FastGFile(pb_file_path, 'rb') as f:
@@ -140,6 +138,8 @@ textModel = yolo_text(num_classes, anchors, train=False)
 textModel.load_weights('../yolo3/model/'+name)
 
 
+output_dir='model/'
+output_graph_name='weights-densent-05-loss_344.7720.h5'
 
 textModel.save('model/weights-densent-05-loss_344.7720.h5')
 model=load_model('model/weights-densent-05-loss_344.7720.h5')
